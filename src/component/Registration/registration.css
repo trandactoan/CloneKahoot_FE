@@ -1,0 +1,9 @@
+.inputContainer{
+  margin-top: 4px;
+}
+.formContainer{
+  width: 80%;
+  display: block;
+  justify-content: center;
+  margin: auto;
+}
