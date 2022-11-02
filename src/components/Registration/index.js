@@ -1,53 +1,55 @@
-import axios from "axios"
 import "./registration.css"
 import React, { useState } from "react"
+import { signUp } from "../../api/userApi";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 function Registeration()
 {
-  const [username,setUsername]=useState("");
-  const [password, setPassword]=useState("");
-  const [email, setEmail] = useState("");
+  const {register, handleSubmit, formState: { errors }} = useForm();
   const [registerState, setRegisterState]=useState("");
   const [newAccountData, setNewAccountData]=useState({});
   const [errorInfo, setErrorInfo]=useState({});
-  const handleSubmit= () => {
-    axios.post('http://localhost:5000/users/register', { username, password, email})
-    .then(response => {
-      setNewAccountData(response.data);
+  const navigate = useNavigate();
+
+  const onSubmit = async (data) => {
+    try{
+      const response= await signUp(data.username, data.password, data.email);
+      setNewAccountData(response);
       setRegisterState("Success")
-      console.log(response.data);
-    })
-    .catch(error=>{
+      navigate("/login")
+    } catch(error)
+    {
       setRegisterState("Fail");
       setErrorInfo(error);
-      console.log("Error when register new account: ", error);
-    })
+    }
   }
   return (
     <div>
       <h1>Register your new account here</h1>
-      <div className="formContainer">
+      <form className="formContainer" onSubmit={handleSubmit(onSubmit)}>
         <div className="inputContainer">
           <label name="username"><b>USERNAME</b></label>
           <div>
-            <input type="text" name="username" required placeholder="Input your username here" onChange={e=>setUsername(e.target.value)}/>
+            <input type="text" {...register("username", {required: true}) } placeholder="Input your username here" />
           </div>
         </div>
         <div className="inputContainer">
-          <label name="email"><b>EMAIL</b></label>
+          <label><b>EMAIL</b></label>
           <div>
-            <input type="email" name="email" required placeholder="Input your email here" onChange={e=>setEmail(e.target.value)}/>
+            <input type="email" {...register("email", {required: true}) } placeholder="Input your email here" />
           </div>
         </div>
         <div className="inputContainer">
           <label name="password"><b>PASSWORD</b></label>
           <div>
-            <input type="password" name="password" required placeholder="Input your password here" onChange={e=>setPassword(e.target.value)}/>
+            <input {...register("password", {required: true}) } type="password" placeholder="Password" />
+            {errors?.password?.type === "required"&& <p>This password field is required</p>}
           </div>
         </div>
         <div>
-          <button type="submit" onClick={handleSubmit}>Submit</button>
+          <input type="submit"/>
         </div>
-      </div>
+      </form>
       {registerState==="Success" && newAccountData &&
         <div>
           You have success register account name: {newAccountData.username}
